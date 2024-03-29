@@ -74,7 +74,12 @@ def preprocess_audio(input_audio: str) -> None:
         gr.Warning(f"Input audio is too long. Only the first {MAX_INPUT_AUDIO_LENGTH} seconds is used.")
     torchaudio.save(input_audio, new_arr, sample_rate=int(AUDIO_SAMPLE_RATE))
 
-
+def run_speech_func(
+    input_audio: str, source_language: str, target_language: str, function: str
+):
+    if function=='S2ST': return run_s2st(input_audio,source_language,target_language)
+    if function=='S2TT': return [None,run_s2tt(input_audio,source_language,target_language)]
+    if function=='ASR': return [None,run_asr(input_audio,source_language)]
 def run_s2st(
     input_audio: str, source_language: str, target_language: str
 ) -> tuple[tuple[int, np.ndarray] | None, str]:
@@ -158,6 +163,11 @@ with gr.Blocks() as demo_s2st:
                     choices=S2ST_TARGET_LANGUAGE_NAMES,
                     value=DEFAULT_TARGET_LANGUAGE,
                 )
+                seamless_function = gr.Dropdown(
+                    label="Function",
+                    choices=["S2ST","S2TT","ASR"],
+                    value="S2ST",
+                )
             btn = gr.Button("Translate")
         with gr.Column():
             with gr.Group():
@@ -183,12 +193,12 @@ with gr.Blocks() as demo_s2st:
     )
 
     btn.click(
-        fn=run_s2st,
-        inputs=[input_audio, source_language, target_language],
+        fn=run_speech_func,
+        inputs=[seamless_function,input_audio, source_language, target_language],
         outputs=[output_audio, output_text],
-        api_name="s2st",
+        api_name="run_speech_func",
     )
-
+"""
 with gr.Blocks() as demo_s2tt:
     with gr.Row():
         with gr.Column():
@@ -227,7 +237,7 @@ with gr.Blocks() as demo_s2tt:
         outputs=output_text,
         api_name="s2tt",
     )
-
+"""
 with gr.Blocks() as demo_t2st:
     with gr.Row():
         with gr.Column():
@@ -291,7 +301,7 @@ with gr.Blocks() as demo_t2st:
         outputs=[output_audio, output_text],
         api_name="t2st",
     )
-
+"""
 with gr.Blocks() as demo_t2tt:
     with gr.Row():
         with gr.Column():
@@ -381,21 +391,25 @@ with gr.Blocks() as demo_asr:
         api_name="asr",
     )
 
-
+"""
 with gr.Blocks(css="style.css") as demo:
     gr.Markdown(DESCRIPTION)
 
     with gr.Tabs():
-        with gr.Tab(label="S2ST"):
+        with gr.Tab(label="Input speech"):
             demo_s2st.render()
+        """
         with gr.Tab(label="S2TT"):
             demo_s2tt.render()
-        with gr.Tab(label="T2ST"):
+        """
+        with gr.Tab(label="Input text"):
             demo_t2st.render()
+        """
         with gr.Tab(label="T2TT"):
             demo_t2tt.render()
         with gr.Tab(label="ASR"):
             demo_asr.render()
+        """
 
 if __name__ == "__main__":
     demo.queue(max_size=50).launch(share=True)
