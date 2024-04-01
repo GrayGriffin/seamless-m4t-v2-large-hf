@@ -213,6 +213,12 @@ with gr.Blocks() as demo_s2st:
         outputs=source_language,
         api_name="blanker",
     )
+    source_language.input(
+        fn=blanker,
+        inputs=[seamless_function,source_language],
+        outputs=source_language,
+        api_name="blanker",
+    )
 """
 with gr.Blocks() as demo_s2tt:
     with gr.Row():
