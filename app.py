@@ -64,6 +64,9 @@ translator = Translator(
     apply_mintox=True,
 )
 
+def blanker(seamless_function: str, source_language: str):
+    if seamless_function=='ASR': return ""
+    else: return source_language
 
 def preprocess_audio(input_audio: str) -> None:
     arr, org_sr = torchaudio.load(input_audio)
@@ -79,7 +82,8 @@ def run_speech_func(
 ):
     if function=='S2ST': return run_s2st(input_audio,source_language,target_language)
     if function=='S2TT': return [None,run_s2tt(input_audio,source_language,target_language)]
-    if function=='ASR': return [None,run_asr(input_audio,source_language)]
+    if function=='ASR': return [None,run_asr(input_audio,target_language)]
+
 def run_s2st(
     input_audio: str, source_language: str, target_language: str
 ) -> tuple[tuple[int, np.ndarray] | None, str]:
@@ -202,6 +206,12 @@ with gr.Blocks() as demo_s2st:
         inputs=[input_audio, source_language, target_language,seamless_function],
         outputs=[output_audio, output_text],
         api_name="run_speech_func",
+    )
+    seamless_function.input(
+        fn=blanker,
+        inputs=[seamless_function,source_language],
+        outputs=source_language,
+        api_name="blanker",
     )
 """
 with gr.Blocks() as demo_s2tt:
