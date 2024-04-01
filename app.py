@@ -109,6 +109,11 @@ def run_s2tt(input_audio: str, source_language: str, target_language: str) -> st
     )
     return str(out_texts[0])
 
+def run_text_func(
+    input_text: str, source_language: str, target_language: str, function: str
+):
+    if function=='T2ST': return run_t2st(input_text,source_language,target_language)
+    if function=='T2TT': return [None,run_t2tt(input_text,source_language,target_language)]
 
 def run_t2st(input_text: str, source_language: str, target_language: str) -> tuple[tuple[int, np.ndarray] | None, str]:
     source_language_code = LANGUAGE_NAME_TO_CODE[source_language]
@@ -254,6 +259,11 @@ with gr.Blocks() as demo_t2st:
                         choices=T2ST_TARGET_LANGUAGE_NAMES,
                         value=DEFAULT_TARGET_LANGUAGE,
                     )
+                    seamless_function = gr.Dropdown(
+                    label="Function",
+                    choices=["T2ST","T2TT"],
+                    value="T2ST",
+                )
             btn = gr.Button("Translate")
         with gr.Column():
             with gr.Group():
@@ -296,10 +306,10 @@ with gr.Blocks() as demo_t2st:
 
     gr.on(
         triggers=[input_text.submit, btn.click],
-        fn=run_t2st,
-        inputs=[input_text, source_language, target_language],
+        fn=run_text_func,
+        inputs=[input_text, source_language, target_language,seamless_function],
         outputs=[output_audio, output_text],
-        api_name="t2st",
+        api_name="run_text_func",
     )
 """
 with gr.Blocks() as demo_t2tt:
