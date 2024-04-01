@@ -194,7 +194,7 @@ with gr.Blocks() as demo_s2st:
 
     btn.click(
         fn=run_speech_func,
-        inputs=[seamless_function,input_audio, source_language, target_language],
+        inputs=[input_audio, source_language, target_language,seamless_function],
         outputs=[output_audio, output_text],
         api_name="run_speech_func",
     )
